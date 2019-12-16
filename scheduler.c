@@ -29,23 +29,10 @@ like.
 
 
 Task* task_tab[TASK_MAX] = {NULL};
-static uint8_t task_cnt=0;
+uint8_t task_cnt=0;
 
 
-void task_print_list(void)
-{
-    PRINT("NAME\t\tCYCLE/us\tSTATUS\n");
-    for(uint8_t i=0; i<task_cnt; i++) {
-        if(strlen(task_tab[i]->name) > 6) {
-            PRINT("[%s]\t%lld\t\t%s\n", task_tab[i]->name, task_tab[i]->rate, task_tab[i]->run? "run":"idle");
-        }
-        else {
-            PRINT("[%s]\t\t%lld\t\t%s\n", task_tab[i]->name, task_tab[i]->rate, task_tab[i]->run? "run":"idle");
-        }
-    }
-}
-
-void task_set_rate(Task* t, times_t time)
+void task_set_rate(Task* t, Times time)
 {
     t->rate = time;
 }
@@ -55,7 +42,7 @@ void task_disable(Task* t)
     t->run = false;
 }
 
-Task* task_create(char* name, times_t interval, task_callback_func cb)
+Task* task_create(char* name, Times interval, task_callback_func cb)
 {
     if(task_cnt >= TASK_MAX) return NULL;
 
@@ -90,6 +77,19 @@ void scheduler_run(void)
     }
 }
 
+void task_print(void)
+{
+    PRINT("NAME\t\tCYCLE/us\tSTATUS\n");
+    for(uint8_t i=0; i<task_cnt; i++) {
+        if(strlen(task_tab[i]->name) > 6) {
+            PRINT("[%s]\t%lld\t\t%s\n", task_tab[i]->name, task_tab[i]->rate, task_tab[i]->run? "run":"idle");
+        }
+        else {
+            PRINT("[%s]\t\t%lld\t\t%s\n", task_tab[i]->name, task_tab[i]->rate, task_tab[i]->run? "run":"idle");
+        }
+    }
+}
+
 void task_shell(int argc, char* argv[]);
 
 void task_init(void)
@@ -104,7 +104,7 @@ void task_shell(int argc, char* argv[])
 {
     if(argc == 2) {
         if(strcmp(argv[1], "list") == 0) {
-            task_print_list();
+            task_print();
             return;
         }
     }

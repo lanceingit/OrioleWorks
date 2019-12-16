@@ -11,6 +11,7 @@
 #endif
 #endif
 
+#if USE_DATA_WIN
 typedef struct {
     FloatFifo fifo;
 } DataWin;
@@ -33,9 +34,10 @@ float datawin_get_avg(DataWin* self);
 float datawin_get_std(DataWin* self);
 float datawin_get_median(DataWin* self);
 float datawin_get_peakp(DataWin* self);
+#endif
 
 //////////////////////////////////////////////////////////////////////
-
+#if USE_DATA_WIN
 typedef struct {
     uint16_t head;
     uint16_t tail;
@@ -51,9 +53,10 @@ int8_t UnitFifo_read(UnitFifo* self, void* u);
 int8_t UnitFifo_peek(UnitFifo* self, uint16_t pos, void* u);
 bool UnitFifo_is_empty(UnitFifo* self);
 uint16_t UnitFifo_get_count(UnitFifo* self);
+#endif
 
 //////////////////////////////////////////////////////////////////////
-
+#if USE_FLOAT_FIFO
 typedef struct {
     uint16_t head;
     uint16_t tail;
@@ -68,9 +71,10 @@ void FloatFifo_write_force(FloatFifo* self, float c);
 int8_t FloatFifo_read(FloatFifo* self, float* c);
 bool FloatFifo_is_empty(FloatFifo* self);
 uint16_t FloatFifo_get_count(FloatFifo* self);
+#endif
 
 //////////////////////////////////////////////////////////////////////
-
+#if USE_FIFO
 typedef struct {
     uint16_t head;
     uint16_t tail;
@@ -97,4 +101,5 @@ void fifo_set_tail_index(Fifo* self, uint16_t new_index);
 
 #if USE_FIFO_PRINT
 void fifo_print(Fifo* self);
+#endif
 #endif

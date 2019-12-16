@@ -8,28 +8,28 @@
 #define US_PER_TICK         (1.0f*1000*1000/TIMER_RATE_HZ)
 
 #if TIMER_WIDTH_BIT==64
-    typedef uint64_t times_t;
+    typedef uint64_t Times;
     #define TIME_MAX 0xFFFFFFFFFFFFFFFF
 #elif TIMER_WIDTH_BIT==32
-    typedef uint32_t times_t;
+    typedef uint32_t Times;
     #define TIME_MAX 0xFFFFFFFF
 #else
     #error "timer width too low or not align"
 #endif
 
-#define TIMER_DEF(name) static times_t name = 0;
+#define TIMER_DEF(name) static Times name = 0;
 
 void timer_init(void);
 void timer_disable(void);
 
-times_t timer_new(uint32_t us);
-bool timer_is_timeout(times_t* t);
+Times timer_new(uint32_t us);
+bool timer_is_timeout(Times* t);
 
-times_t timer_now(void);
-times_t timer_elapsed(times_t* t);
+Times timer_now(void);
+Times timer_elapsed(Times* t);
 
-bool timer_check(times_t* t, times_t us);
-float timer_get_dt(times_t* t, float max, float min);
+bool timer_check(Times* t, Times us);
+float timer_get_dt(Times* t, float max, float min);
 
 void delay(float s);
 void delay_ms(uint32_t ms);

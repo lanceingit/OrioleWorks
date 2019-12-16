@@ -66,7 +66,7 @@ void stat_update_time(void);
 
 typedef struct  
 {
-    times_t timer;
+    Times timer;
     float rate;
     uint32_t cnt;
 } RatePerf;
@@ -123,13 +123,13 @@ void CntPerf_print(CntPerf* self, char* tag);
 //////////////////////////////////////
 
 typedef struct {
-    times_t t0;
-    times_t t1;
+    Times t0;
+    Times t1;
     uint64_t cnt;
-    times_t avg;
-    times_t sum;
-    times_t t_max;
-    times_t t_min;
+    Times avg;
+    Times sum;
+    Times t_max;
+    Times t_min;
 } TimePerf;
 
 #define TIME_PERF_DEF(p) static TimePerf p = { \

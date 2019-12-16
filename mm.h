@@ -8,8 +8,9 @@
 
 #ifndef GLOBAL_CONFIG
 #define USE_MM              MM_MODULE_DYNAMIC_ADDR
-#define USE_MM_PRINT        1
 #define MM_HEAP_SIZE        (8*1024)
+#define USE_MM_SHELL        0
+#define USE_MM_STAT         0 
 #endif
 
 void mm_init(void);

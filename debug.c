@@ -17,6 +17,9 @@
 #include "debug.h"
 #include "debug_module_list.h"
 
+#include <ctype.h>
+#include <math.h>
+
 DebugLevel debug_level = DEBUG_LEVEL_INFO;
 DebugID debug_module = DEBUG_ID_NULL;
 
@@ -78,10 +81,10 @@ static uint8_t itoa_dec(long int num, uint8_t width, char pad)
 {
     uint8_t len = 0;
 
-    if(num == 0) {
-        putcf('0');
-        return 1;
-    }
+//    if(num == 0) {
+//        putcf('0');
+//        return 1;
+//    }
 
     unsigned long int n = num;
     if(num < 0) {
@@ -160,10 +163,10 @@ static uint8_t itoa_dec_ll(long long int num, uint8_t width, char pad)
 {
     uint8_t len = 0;
 
-    if(num == 0) {
-        putcf('0');
-        return 1;
-    }
+//    if(num == 0) {
+//        putcf('0');
+//        return 1;
+//    }
 
     unsigned long long int n = num;
     if(num < 0) {
@@ -309,7 +312,7 @@ int evsprintf(char* buf, const char* fmt, va_list ap)
                 len += itoa_dec((int)num, width, pad);
                 putcf('.');
                 len++;
-                len += itoa_dec((num - (int)num) * powerf(10, precision), precision, '0');
+                len += itoa_dec((num - (int)num) * powf(10.0f, precision), precision, '0');
                 break;
             case 's':
                 str = va_arg(ap, char*);
@@ -357,8 +360,6 @@ char* enum2string(EnumString* enum_string, uint8_t id)
 }
 
 /////////////////////////////////////////////////////////////////
-void debug_shell(int argc, char* argv[]);
-
 void debug_list_modules(void)
 {
     uint16_t count;
@@ -392,7 +393,7 @@ void debug_status_show(void)
                      debug_module_list[debug_module], debug_module);
 }
 
-void debug_level_set(debug_level_e level)
+void debug_level_set(DebugLevel level)
 {
     debug_level = level;
 }
@@ -404,7 +405,7 @@ bool debug_module_set(char* module)
     debug_level_set(DEBUG_LEVEL_DEBUG);
     for(count = 0 ; count < DEBUG_ID_MAX ; count++) {
         if(strcasecmp(debug_module_list[count], module) == 0) {
-            debug_module = (debug_id_e)count;
+            debug_module = (DebugID)count;
             cli_device_write("debug module:[%d][%s]\r\n", debug_module, debug_module_list[debug_module]);
             return true;
         }
@@ -412,15 +413,16 @@ bool debug_module_set(char* module)
     return false;
 }
 
+void debug_shell(int argc, char* argv[]);
+
 void debug_init(void)
 {
+#if USE_DEBGU_SHELL    
     cli_regist("debug", debug_shell);
-
-//	debug_level = DEBUG_LEVEL_INFO;
-    debug_level = DEBUG_LEVEL_DEBUG;
-    debug_module = DEBUG_ID_MIN;
+#endif    
 }
 
+#if USE_DEBGU_SHELL
 void debug_shell(int argc, char* argv[])
 {
     if(argc == 2) {
@@ -437,7 +439,7 @@ void debug_shell(int argc, char* argv[])
             return;
         }
         else if(strcmp(argv[1], "off") == 0) {
-            debug_module = DEBUG_ID_MIN;
+            debug_module = DEBUG_ID_NULL;
             debug_level_set(DEBUG_LEVEL_INFO);
             return;
         }
@@ -449,10 +451,11 @@ void debug_shell(int argc, char* argv[])
     }
     else if(argc == 3) {
         if(strcmp(argv[1], "level") == 0) {
-            debug_level_set((debug_level_e)atoi(argv[2]));
+            debug_level_set((DebugLevel)atoi(argv[2]));
             return;
         }
     }
 
     cli_device_write("missing command: try 'list', 'status', 'all', 'off', 'level n', 'module name'");
 }
+#endif

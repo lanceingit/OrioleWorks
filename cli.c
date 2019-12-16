@@ -60,7 +60,24 @@ void cli_device_init(void)
 uint16_t cli_input(uint8_t* data, uint16_t size)
 void cli_output(char* buf, uint16_t len)
 */
-#ifdef ORIOLE_WORKS
+#ifdef USE_RTT
+#include "SEGGER_RTT.h"
+
+void cli_device_init(void)
+{
+}
+
+uint16_t cli_input(uint8_t* data, uint16_t size)
+{
+    return SEGGER_RTT_Read(0, data, size);
+}
+
+void cli_output(char* buf, uint16_t len)
+{
+    SEGGER_RTT_Write(0, buf, len);
+}
+
+#elif defined(ORIOLE_WORKS)
 #include "serial.h"
 
 #define RX_BUF_SIZE 300    
@@ -223,8 +240,8 @@ void reboot_shell(int argc, char* argv[])
 {
 #ifdef STM32F3
     NVIC_SystemReset();
-#elif LINUX
-#elif APOLLO
+#elif defined(LINUX)
+#elif defined(APOLLO)
     am_hal_sysctrl_aircr_reset();
 #endif
 }
@@ -253,7 +270,7 @@ void cli_device_write(const char* format, ...)
     len = VSPRINTF_FUNC((char*)cli_write_buf, format, args);
     va_end(args);
 
-    cli_output(cli_write_buf, len);
+    cli_output((char*)cli_write_buf, len);
 
 //	PRINTF_FUNC("%s", write_buffer);
 }

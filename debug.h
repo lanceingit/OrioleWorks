@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 
+#ifndef GLOBAL_CONFIG
+#define USE_DEBGU_SHELL         0    
+#endif
 
 #ifdef ORIOLE_WORKS
 #include "cli.h"
@@ -106,15 +109,6 @@ extern char* debug_module_list[DEBUG_ID_MAX];
 			PRINT("[DEBUG][%s]"format, debug_module_list[DEBUG_ID_##module], ##__VA_ARGS__ );\
 		}\
 	} while (0)
-
-#define PRINT_BUF(str, buf, len)\
-    do {\
-        PRINT("%s:", str);\
-        for(uint8_t i=0; i<len; i++) { \
-           PRINT("%02x ", buf[i]);  \
-        } \
-        PRINT("\n"); \
-    } while(0)
 
 #define DEBUG_BUF(module, str, buf, len)\
     do {\

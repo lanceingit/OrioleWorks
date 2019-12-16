@@ -15,13 +15,14 @@
 #include "support.h"
 #include "mm.h"
 
-#if USE_MM_PRINT
+#if USE_MM_SHELL
 /*
 If use print function, must define printf function
 like. 
 #include "debug.h"
 #define PRINTF_FUNC             PRINT
 */
+#include "cli.h"
 #include "debug.h"
 
 #define PRINTF_FUNC             PRINT
@@ -32,43 +33,27 @@ struct block_s {
     size_t size;
 };
 
-#define BYTE_ALIGNMENT_MASK         (MM_BYTE_ALIGNMENT-1)
+#define MM_BYTE_ALIGNMENT       4
+#define BYTE_ALIGNMENT_MASK    (MM_BYTE_ALIGNMENT-1)
 #define BLOCK_STRUCT_SIZE	   ((sizeof(struct block_s)+((size_t)(MM_BYTE_ALIGNMENT-1)))&~((size_t)BYTE_ALIGNMENT_MASK))
 #define BLOCK_SIZE_MIN	       ((size_t)(BLOCK_STRUCT_SIZE << 1))
 
-static uint8_t heap[MM_HEAP_SIZE] __attribute__((aligned(4)));
+uint8_t mm_heap[MM_HEAP_SIZE] __attribute__((aligned(4)));
 
 #if USE_MM == MM_MODULE_STATIC
-    static size_t mm_used = 0;
+    size_t mm_used = 0;
 
 #elif USE_MM == MM_MODULE_DYNAMIC_ADDR
-    static struct block_s start, *end = NULL;
-    static size_t remaining = 0U;
-
+    struct block_s mm_start;
+    struct block_s* mm_end = NULL;
+    size_t mm_remaining = 0U;
+#if USE_MM_STAT
+    size_t mm_used_max = 0U;
+#endif
 #endif
 
 
-void mm_init(void)
-{
-    size_t addr;
-    struct block_s* first;
 
-    start.next = (void*)heap;
-    start.size = (size_t)0;
-
-    addr = ((size_t)heap) + MM_HEAP_SIZE;
-    addr -= BLOCK_STRUCT_SIZE;
-    addr &= ~((size_t)BYTE_ALIGNMENT_MASK);
-    end = (void*) addr;
-    end->size = 0;
-    end->next = NULL;
-
-    first = (void*)heap;
-    first->size = addr - (size_t)first;
-    first->next = end;
-
-    remaining = first->size;
-}
 
 void* mm_malloc(uint32_t s)
 {
@@ -91,16 +76,16 @@ void* mm_malloc(uint32_t s)
         s += (MM_BYTE_ALIGNMENT - (s & BYTE_ALIGNMENT_MASK));
     }
 
-    if((s > 0) && (s <= remaining)) {
-        prev = &start;
-        curr = start.next;
+    if((s > 0) && (s <= mm_remaining)) {
+        prev = &mm_start;
+        curr = mm_start.next;
 
         while((curr->size < s) && (curr->next != NULL)) {
             prev = curr;
             curr = curr->next;
         }
 
-        if(curr != end) {
+        if(curr != mm_end) {
             m = (void*)(((uint8_t*)prev->next)+BLOCK_STRUCT_SIZE);
             prev->next=curr->next;
             curr->next = NULL;
@@ -116,7 +101,14 @@ void* mm_malloc(uint32_t s)
                 new->next=prev->next;
                 prev->next=new;
             }
-            remaining -= curr->size;
+            mm_remaining -= curr->size;
+            
+        #if USE_MM_STAT
+            size_t used = MM_HEAP_SIZE - mm_remaining;
+            if(used > mm_used_max) {
+                mm_used_max = used;
+            }
+        #endif    
         }
     }
 #elif MM_USE == MM_MODULE_DYNAMIC_SIZE
@@ -140,9 +132,9 @@ void mm_free(void* m)
         // PRINT("free: addr:%p next:%p size:%d\n", block, block->next, block->size);
 
         if(block->next == NULL) {
-            remaining += block->size;
+            mm_remaining += block->size;
 
-            for(iterator=&start; iterator->next<block; iterator=iterator->next);
+            for(iterator=&mm_start; iterator->next<block; iterator=iterator->next);
 
             if(((uint8_t*)iterator + iterator->size) == (uint8_t*)block) {
                 iterator->size += block->size;
@@ -154,7 +146,7 @@ void mm_free(void* m)
             }
 
             if(((uint8_t*)block + block->size) == (uint8_t*)(block->next)) {
-                if((uint8_t*)block->next != (uint8_t*)end) {
+                if((uint8_t*)block->next != (uint8_t*)mm_end) {
                     block->size += block->next->size;
                     block->next = block->next->next;
                     block->next->next = NULL;
@@ -168,15 +160,74 @@ void mm_free(void* m)
 #endif
 }
 
-#if USE_MM_PRINT
+#if USE_MM_SHELL
 void mm_print_info(void)
 {
     struct block_s* block;
     uint8_t i;
     PRINTF_FUNC("---------mm info----------\n");
-    for(i=0, block=start.next; block->next!=NULL; block=block->next, i++) {
+    for(i=0, block=mm_start.next; block->next!=NULL; block=block->next, i++) {
         PRINTF_FUNC("b%d: addr:%p next:%p size:%d\n", i, block, block->next, block->size);
     }
     PRINTF_FUNC("--------------------------\n");
 }
+
+void free_shell(int argc, char *argv[])
+{
+	if(argc == 1) {
+        cli_device_write("total memory: %3.3fKB(%dByte)\n", MM_HEAP_SIZE/1024.0f, MM_HEAP_SIZE);
+        cli_device_write("used memory : %3.3fKB(%dByte)\n", (MM_HEAP_SIZE-mm_remaining)/1024.0f, MM_HEAP_SIZE-mm_remaining);
+        cli_device_write("free memory : %3.3fKB(%dByte)\n", mm_remaining/1024.0f, mm_remaining);
+    #if USE_MM_STAT    
+        cli_device_write("maximum allocated memory: %3.3fKB(%dByte)\n", mm_used_max/1024.0f, mm_used_max);
+    #endif
+        return;
+	}
+
+	cli_device_write("missing command: no need argv");    
+}
 #endif
+
+void mm_shell(int argc, char* argv[]);
+
+void mm_init(void)
+{
+    size_t addr;
+    struct block_s* first;
+
+    mm_start.next = (void*)mm_heap;
+    mm_start.size = (size_t)0;
+
+    addr = ((size_t)mm_heap) + MM_HEAP_SIZE;
+    addr -= BLOCK_STRUCT_SIZE;
+    addr &= ~((size_t)BYTE_ALIGNMENT_MASK);
+    mm_end = (void*) addr;
+    mm_end->size = 0;
+    mm_end->next = NULL;
+
+    first = (void*)mm_heap;
+    first->size = addr - (size_t)first;
+    first->next = mm_end;
+
+    mm_remaining = first->size;
+
+#if USE_MM_SHELL    
+    cli_regist("free", free_shell);
+    cli_regist("mm", mm_shell);
+#endif    
+}
+
+#if USE_MM_SHELL
+void mm_shell(int argc, char* argv[])
+{
+    if(argc == 2) {
+        if(strcmp(argv[1], "list") == 0) {
+            mm_print_info();
+            return;
+        }
+    }
+
+    cli_device_write("missing command: try 'list'");
+}
+#endif
+

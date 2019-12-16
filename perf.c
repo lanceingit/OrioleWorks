@@ -23,6 +23,7 @@ like.
 #define EVENT_MAGIC     0xE38B1037
 #define STAT_MAGIC      0xA209F87C
 
+#if USE_EVENT
 
 ENUM_STRING_START(event)
 ENUM_STRING_ADD(EVENT_POWER_ON)
@@ -296,7 +297,7 @@ void event_init(void)
     event_record(EVENT_POWER_ON, 0);
 }
 #endif
-
+#endif
 
 //////////////////////////////////////////////////////////////////
 

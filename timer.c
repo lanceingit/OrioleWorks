@@ -25,7 +25,7 @@
 #endif
 
 
-static volatile times_t timer_cnt = 0;
+static volatile Times timer_cnt = 0;
 #ifdef LINUX
     static struct timespec boot_time;
 #elif defined(ESP)
@@ -33,24 +33,24 @@ static volatile times_t timer_cnt = 0;
 #endif
 
 
-times_t timer_now(void)
+Times timer_now(void)
 {
 #ifdef LINUX
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
 
-    return (times_t)((now.tv_sec-boot_time.tv_sec)*1000000+(now.tv_nsec-boot_time.tv_nsec) / 1000);
+    return (Times)((now.tv_sec-boot_time.tv_sec)*1000000+(now.tv_nsec-boot_time.tv_nsec) / 1000);
 #else
     return timer_cnt*US_PER_TICK;
 #endif
 }
 
-times_t timer_new(uint32_t us)
+Times timer_new(uint32_t us)
 {
     return timer_now()+us;
 }
 
-bool timer_is_timeout(times_t* t)
+bool timer_is_timeout(Times* t)
 {
     if(*t >= timer_now()) {
         return false;
@@ -60,9 +60,9 @@ bool timer_is_timeout(times_t* t)
     }
 }
 
-static times_t timer_passed(times_t* since)
+static Times timer_passed(Times* since)
 {
-    times_t now = timer_now();
+    Times now = timer_now();
 
     if(now >= *since) {
         return now-*since;
@@ -71,12 +71,12 @@ static times_t timer_passed(times_t* since)
     return now+(TIME_MAX-*since+1);
 }
 
-times_t timer_elapsed(times_t* t)
+Times timer_elapsed(Times* t)
 {
     return timer_passed(t);
 }
 
-bool timer_check(times_t* t, times_t us)
+bool timer_check(Times* t, Times us)
 {
     if(timer_passed(t) > us) {
         *t = timer_now();
@@ -85,7 +85,7 @@ bool timer_check(times_t* t, times_t us)
     return false;
 }
 
-float timer_get_dt(times_t* t, float max, float min)
+float timer_get_dt(Times* t, float max, float min)
 {
     float dt = (*t > 0) ? ((timer_now()-*t) / 1000000.0f) : min;
     *t = timer_now();
@@ -101,35 +101,35 @@ float timer_get_dt(times_t* t, float max, float min)
 
 void delay(float s)
 {
-    volatile times_t wait;
+    volatile Times wait;
 
     wait = timer_new((uint32_t)(s*1000*1000));
-    while(!timer_is_timeout((times_t*)&wait));
+    while(!timer_is_timeout((Times*)&wait));
 }
 
 void delay_ms(uint32_t ms)
 {
-    volatile times_t wait;
+    volatile Times wait;
 
     wait = timer_new(ms*1000);
-    while(!timer_is_timeout((times_t*)&wait));
+    while(!timer_is_timeout((Times*)&wait));
 }
 
 void delay_us(uint32_t us)
 {
-    volatile times_t wait;
+    volatile Times wait;
 
     wait = timer_new(us);
-    while(!timer_is_timeout((times_t*)&wait));
+    while(!timer_is_timeout((Times*)&wait));
 }
 
 #ifndef LINUX
 void sleep(float s)
 {
-    volatile times_t wait;
+    volatile Times wait;
 
     wait = timer_new((uint32_t)(s*1000*1000));
-    while(!timer_is_timeout((times_t*)&wait));
+    while(!timer_is_timeout((Times*)&wait));
 }
 #endif
 
@@ -141,7 +141,7 @@ void timer_disable(void)
 #elif defined(ESP)
     os_timer_disarm(&work_timer);
 
-#elif defined(SM701)
+#elif defined(APOLLO)
     am_hal_ctimer_stop(2, AM_HAL_CTIMER_TIMERA);
 #endif
 }
@@ -165,15 +165,15 @@ void timer_isr(void* arvg)
 #endif
 }
 
-#elif defined(SM701)
+#elif defined(APOLLO)
 static void timer_isr(void)
 {
     uint32_t status;
 
     status = am_hal_ctimer_int_status_get(true);
 
-    am_hal_ctimer_int_clear(status);
-
+    am_hal_ctimer_int_clear(status);    
+    
     if(status & AM_HAL_CTIMER_INT_TIMERA2) {
         timer_cnt++;
     }
@@ -186,7 +186,7 @@ void TIM7_IRQHandler(void)
     timer_isr();
 }
 
-#elif defined(SM701)
+#elif defined(APOLLO)
 void am_ctimer_isr(void)
 {
     timer_isr();
@@ -228,14 +228,14 @@ void timer_init()
     os_timer_setfn(&work_timer, timer_isr, NULL);
     os_timer_arm(&work_timer, US_PER_TICK/1000, 1);
 
-#elif defined(SM701)
+#elif defined(APOLLO)
     am_hal_ctimer_config_single(2, AM_HAL_CTIMER_TIMERA,
-                                AM_HAL_CTIMER_XT_2_048KHZ |
+                                AM_HAL_CTIMER_HFRC_12MHZ |
                                 AM_HAL_CTIMER_FN_REPEAT |
                                 AM_HAL_CTIMER_INT_ENABLE
                                );
 
-    am_hal_ctimer_period_set(2, AM_HAL_CTIMER_TIMERA, (2048/TICK_RATE_MHZ - 1), 0);   //1.953125us
+    am_hal_ctimer_period_set(2, AM_HAL_CTIMER_TIMERA, (12*1000*1000/(TIMER_RATE_HZ) - 1), 0);
 
     am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA2);
     am_hal_interrupt_enable(AM_HAL_INTERRUPT_CTIMER);
