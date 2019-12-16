@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef GLOBAL_CONFIG
 #define USE_EVENT           1
 #define USE_EVENT_SHELL     0
 #define USE_STAT            1
@@ -13,6 +14,8 @@
 
 #define STAT_ADDR           0xFF400
 #define STAT_BUF_SIZE       1024 
+#endif
+
 
 typedef enum {
 	EVENT_POWER_ON = 0,

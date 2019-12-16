@@ -2,7 +2,24 @@
 
 #include <stdio.h>
 
+
+#ifdef ORIOLE_WORKS
 #include "cli.h"
+
+#define DEBUG_WRITE(format,...)\
+        do {\
+            cli_device_write(""format"",##__VA_ARGS__ );\
+        } while (0)
+
+#elif defined(RTTHREAD)
+#define DEBUG_WRITE(format,...)\
+        do {\
+            rt_kprintf(""format"",##__VA_ARGS__ );\
+        } while (0)
+
+#else
+#define DEBUG_WRITE(format,...)
+#endif
 
 
 typedef enum {
@@ -10,10 +27,10 @@ typedef enum {
     DEBUG_LEVEL_WARN,
     DEBUG_LEVEL_INFO,
     DEBUG_LEVEL_DEBUG,
-} debug_level_e;
+} DebugLevel;
 
 typedef enum {
-    DEBUG_ID_MIN = 0,
+    DEBUG_ID_NULL = 0,
     DEBUG_ID_HMC5883,
     DEBUG_ID_I2C,
     DEBUG_ID_MPU6050,
@@ -55,22 +72,22 @@ typedef enum {
     DEBUG_ID_ALTHOLD,
     DEBUG_ID_LAND,
     DEBUG_ID_MAX,
-} debug_id_e;
+} DebugID;
 
-extern debug_level_e debug_level;
-extern debug_id_e debug_module;
+extern DebugLevel debug_level;
+extern DebugID debug_module;
 extern char* debug_module_list[DEBUG_ID_MAX];
 
 #ifdef LINUX
 #define PRINT(format,...)\
         do {\
             printf(""format"",##__VA_ARGS__ );\
-            cli_device_write(""format"",##__VA_ARGS__ );\
+            DEBUG_WRITE(""format"",##__VA_ARGS__ );\
         } while (0)
 #else
 #define PRINT(format,...)\
         do {\
-            cli_device_write(""format"",##__VA_ARGS__ );\
+            DEBUG_WRITE(""format"",##__VA_ARGS__ );\
         } while (0)
 #endif
 
@@ -85,65 +102,61 @@ extern char* debug_module_list[DEBUG_ID_MAX];
 
 #define DEBUG(module,format,...)\
 	do {\
-		if(debug_module == module && debug_level >= DEBUG_LEVEL_DEBUG){\
-			cli_device_write("[DEBUG][%s]"format, debug_module_list[module], ##__VA_ARGS__ );\
+		if(debug_module == DEBUG_ID_##module && debug_level >= DEBUG_LEVEL_DEBUG){\
+			PRINT("[DEBUG][%s]"format, debug_module_list[DEBUG_ID_##module], ##__VA_ARGS__ );\
 		}\
 	} while (0)
 
-#define DEBUG_PRINT(format,...)\
-	do {\
-        cli_device_write(""format"", ##__VA_ARGS__ );\
-	} while (0)
+#define PRINT_BUF(str, buf, len)\
+    do {\
+        PRINT("%s:", str);\
+        for(uint8_t i=0; i<len; i++) { \
+           PRINT("%02x ", buf[i]);  \
+        } \
+        PRINT("\n"); \
+    } while(0)
 
 #define DEBUG_BUF(module, str, buf, len)\
-   do {\
-       if(debug_module == module && debug_level >= DEBUG_LEVEL_DEBUG){\
-           DEBUG_PRINT("[DEBUG][%s]%s",debug_module_list[module], str);\
-           for(uint8_t i=0; i<len; i++) { \
-                   DEBUG_PRINT("%02x ", buf[i]);  \
-           } \
-           DEBUG_PRINT("\n"); \
-       } \
-   } while(0)
+    do {\
+        if(debug_module == DEBUG_ID_##module && debug_level >= DEBUG_LEVEL_DEBUG){\
+            PRINT("[DEBUG][%s]%s",debug_module_list[DEBUG_ID_##module], str);\
+            for(uint8_t i=0; i<len; i++) { \
+                PRINT("%02x ", buf[i]);  \
+            } \
+            PRINT("\n"); \
+        } \
+    } while(0)
 
 #define DEBUG_BUF_DEC(module, str, buf, len)\
-   do {\
-       if(debug_module == module && debug_level >= DEBUG_LEVEL_DEBUG){\
-           DEBUG_PRINT("[DEBUG][%s]%s",debug_module_list[module], str);\
-           for(uint8_t i=0; i<len; i++) { \
-                   DEBUG_PRINT("%d ", buf[i]);  \
-           } \
-           DEBUG_PRINT("\n"); \
-       } \
-   } while(0)
+    do {\
+        if(debug_module == DEBUG_ID_##module && debug_level >= DEBUG_LEVEL_DEBUG){\
+            PRINT("[DEBUG][%s]%s",debug_module_list[DEBUG_ID_##module], str);\
+            for(uint8_t i=0; i<len; i++) { \
+                PRINT("%d ", buf[i]);  \
+            } \
+            PRINT("\n"); \
+        } \
+    } while(0)
 
 #define INFO(module,format,...)\
 	do {\
 		if(debug_level >= DEBUG_LEVEL_INFO){ \
-            cli_device_write("[INFO][%s]"format, debug_module_list[module], ##__VA_ARGS__);\
+            PRINT("[INFO][%s]"format, debug_module_list[DEBUG_ID_##module], ##__VA_ARGS__);\
 		} \
 	} while (0)
 
 #define WARN(module,format,...)\
 	do {\
 		if(debug_level >= DEBUG_LEVEL_WARN){ \
-            cli_device_write("[WARN][%s]"format, debug_module_list[module], ##__VA_ARGS__);\
+            PRINT("[WARN][%s]"format, debug_module_list[DEBUG_ID_##module], ##__VA_ARGS__);\
 		} \
 	} while (0)
 
 #define ERR(module,format,...)\
 	do {\
-		cli_device_write("[ERR][%s]"format,  debug_module_list[module], ##__VA_ARGS__);\
+		PRINT("[ERR][%s]"format,  debug_module_list[DEBUG_ID_##module], ##__VA_ARGS__);\
 	} while (0)
-
-
-//void DEBUG(debug_id_e module, char* format,...);
-//void DEBUG_PRINT(char* format,...);
-//void DEBUG_BUF(debug_id_e module,  char* str, uint8_t* buf, uint8_t len);
-//void DEBUG_BUF_DEC(debug_id_e module,  char* str, uint8_t* buf, uint8_t len);
-//void INFO(debug_id_e module, char* format,...);
-//void WARN(debug_id_e module, char* format,...);
-//void ERR(debug_id_e module, char* format, ...);
+    
 
 void debug_init(void);
 

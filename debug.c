@@ -12,13 +12,13 @@
  *
  * debug module, support module select
  */
-#include "board.h"
+#include "support.h"
 
 #include "debug.h"
 #include "debug_module_list.h"
 
-debug_level_e debug_level = DEBUG_LEVEL_INFO;
-debug_id_e debug_module = DEBUG_ID_MIN;
+DebugLevel debug_level = DEBUG_LEVEL_INFO;
+DebugID debug_module = DEBUG_ID_NULL;
 
 /////////////////////////////////////////////////////////////////
 

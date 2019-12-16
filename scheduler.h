@@ -2,12 +2,13 @@
 
 #include "timer.h"
 
+#ifndef GLOBAL_CONFIG
 #define USE_TASK_SHELL      0
 #define USE_TASK_PRINT      0
 
 #define TASK_MAX            20
 #define TASK_NAME_MAX       10
-
+#endif
 
 typedef void(*task_callback_func)(void);
 

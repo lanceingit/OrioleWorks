@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef GLOBAL_CONFIG
 #define USE_DATA_WIN    0
 #define USE_UNIT_FIFO   0
 #define USE_FLOAT_FIFO  0
@@ -7,6 +8,7 @@
 #if USE_FIFO
     #define USE_FIFO_MODIFY 0
     #define USE_FIFO_PRINT  0
+#endif
 #endif
 
 typedef struct {

@@ -60,7 +60,7 @@ void cli_device_init(void)
 uint16_t cli_input(uint8_t* data, uint16_t size)
 void cli_output(char* buf, uint16_t len)
 */
-#ifdef STM32F3
+#ifdef ORIOLE_WORKS
 #include "serial.h"
 
 #define RX_BUF_SIZE 300    

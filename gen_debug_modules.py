@@ -29,7 +29,7 @@ while True:
     if not line:
         break
     print line
-    if line.find("DEBUG_ID_MIN")!= -1:
+    if line.find("DEBUG_ID_NULL")!= -1:
         print "find line"
         break;
 #    else:

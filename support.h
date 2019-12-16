@@ -13,77 +13,67 @@
     #define APOLLO
 #endif
 
-#define MM_HEAP_SIZE        (4*1024)
-#define MM_BYTE_ALIGNMENT  4
+
+
+#define GLOBAL_CONFIG
 
 #ifdef F3_EVO
-    #define TASK_MAX     20
-
-    #define US_PER_TICK         (10)
+    #define TASK_MAX            20
+    #define TIMER_RATE_HZ       100
     #define TIMER_WIDTH_BIT     64
-
-    #define MPU6050_I2C     I2C1
-    #define HMC5883_I2C     I2C1
-    #define MS5611_I2C      I2C1
-
-    #define SPI_FLAHS_SPI   SPI2
-    #define FLASH_PAGESIZE  256
-    #define FLASH_PAGES_PER_SECTOR      256
-    #define FLASH_SECTORSIZE (FLASH_PAGESIZE*FLASH_PAGES_PER_SECTOR)
-    #define FLASH_SECTOR_NUM    32
-    #define FLASH_SIZE      (FLASH_SECTORSIZE*FLASH_SECTOR_NUM)
-
-    #define INERTIAL_SENSOR_ROTATION    ROTATION_ROLL_180_YAW_270
-
-    #define MPU6050_ACCEL_DEFAULT_RATE				1000.0f
-    #define MPU6050_GYRO_DEFAULT_RATE				1000.0f
-
-    #define MPU6050_ACCEL_XY_DEFAULT_FILTER_FREQ	30.0f
-    #define MPU6050_ACCEL_Z_DEFAULT_FILTER_FREQ	    30.0f
-    #define MPU6050_GYRO_XY_DEFAULT_FILTER_FREQ		30.0f
-    #define MPU6050_GYRO_Z_DEFAULT_FILTER_FREQ		30.0f
+    #define MM_HEAP_SIZE        (4*1024)
 
 #elif LINUX
-    #define TASK_MAX     20
+    #define TASK_MAX            20
 
-    #define US_PER_TICK         (10*1000)  //in linux not need
+    #define TIMER_RATE_HZ       100  //in linux not need
     #define TIMER_WIDTH_BIT     64
 
-    #define SYSTEM_CYCLE              (1000)
-
-    #define FLASH_PAGESIZE  8096
-
-    #define MTD_FILE_SIZE_MAX (10*1024*1024)
-    #define MTD_PATH "/tmp/file.mtd"
-
-
-    #define MPU6050_PATH "/dev/mpu6050"
-    #define INERTIAL_SENSOR_ROTATION    ROTATION_ROLL_180_YAW_90
-
-    #define MPU6050_ACCEL_DEFAULT_RATE				500
-    #define MPU6050_GYRO_DEFAULT_RATE				500
-
-    #define MPU6050_ACCEL_XY_DEFAULT_FILTER_FREQ	45
-    #define MPU6050_ACCEL_Z_DEFAULT_FILTER_FREQ	    30
-    #define MPU6050_GYRO_XY_DEFAULT_FILTER_FREQ		65
-    #define MPU6050_GYRO_Z_DEFAULT_FILTER_FREQ		45
-
-    #define SPL06_PATH "/dev/spl06"
-    #define DPS280_PATH "/dev/dps280"
-
 #elif ESP
-    #define TASK_MAX     20
+    #define TASK_MAX            20
 
-    #define US_PER_TICK         (10*1000)
+    #define TIMER_RATE_HZ       100
     #define TIMER_WIDTH_BIT     64
 
 #elif SM702
-    #define TASK_MAX     20
+    #define TASK_MAX            20
 
     #define RTTHREAD
-    #define TICK_RATE_MHZ       512
-    #define US_PER_TICK         (1.0f*1000*1000/TICK_RATE_MHZ)
+    #define TIMER_RATE_HZ       1000
     #define TIMER_WIDTH_BIT     64
+
+    #define USE_MM              MM_MODULE_DYNAMIC_ADDR
+    #define USE_MM_PRINT        1
+    #define MM_HEAP_SIZE        (8*1024)
+
+    #define SHELL_NUM               50
+    #define CMD_LEN_MAX             50
+    #define CLI_READ_BUF_SIZE       100
+    #define CLI_WRITE_BUF_SIZE      500
+    #define CLI_ARGV_MAX            10
+
+    #define USE_DATA_WIN    0
+    #define USE_UNIT_FIFO   0
+    #define USE_FLOAT_FIFO  0
+    #define USE_FIFO        1
+    #if USE_FIFO
+        #define USE_FIFO_MODIFY 0
+        #define USE_FIFO_PRINT  0
+    #endif
+
+    #define USE_EVENT           0
+    #define USE_EVENT_SHELL     0
+    #define USE_STAT            0
+    #define USE_STAT_SHELL      0
+    #define USE_RATE_PERF       0
+    #define USE_CNT_PERF        0
+    #define USE_TIME_PERF       0
+
+    #define EVENT_ADDR          0xFF000
+    #define EVNET_BUF_SIZE      1024 
+
+    #define STAT_ADDR           0xFF400
+    #define STAT_BUF_SIZE       1024 
 #endif
 
 
