@@ -1,5 +1,9 @@
 #pragma once
 
+#define TIMER_RATE_HZ       (1000)
+#define US_PER_TICK         (1.0f*1000*1000/TIMER_RATE_HZ)
+#define TIMER_WIDTH_BIT     64
+
 #if TIMER_WIDTH_BIT==64
     typedef uint64_t times_t;
     #define TIME_MAX 0xFFFFFFFFFFFFFFFF

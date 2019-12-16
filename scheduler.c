@@ -12,16 +12,25 @@
  *
  * Simple scheduling system, task form
  */
-#include "board.h"
+#include "support.h"
 #include "scheduler.h"
-#include "debug.h"
 #include "mm.h"
 #include <string.h>
+
+/*
+If use print function, must define printf function
+like. 
+#include "debug.h"
+#define PRINTF_FUNC             PRINT
+*/
+#include "debug.h"
+
+#define PRINTF_FUNC             PRINT
+
 
 Task* task_tab[TASK_MAX] = {NULL};
 static uint8_t task_cnt=0;
 
-void task_shell(int argc, char* argv[]);
 
 void task_print_list(void)
 {
@@ -81,11 +90,16 @@ void scheduler_run(void)
     }
 }
 
+void task_shell(int argc, char* argv[]);
+
 void task_init(void)
 {
+#if USE_TASK_SHELL
     cli_regist("task", task_shell);
+#endif    
 }
 
+#if USE_TASK_SHELL
 void task_shell(int argc, char* argv[])
 {
     if(argc == 2) {
@@ -97,3 +111,4 @@ void task_shell(int argc, char* argv[])
 
     cli_device_write("missing command: try 'list'");
 }
+#endif

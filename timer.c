@@ -13,7 +13,7 @@
  * simple timer, delay and time block function
  */
 
-#include "board.h"
+#include "support.h"
 
 #include "timer.h"
 #ifdef LINUX
@@ -28,7 +28,7 @@
 static volatile times_t timer_cnt = 0;
 #ifdef LINUX
     static struct timespec boot_time;
-#elif ESP
+#elif defined(ESP)
     static os_timer_t work_timer;
 #endif
 
@@ -138,23 +138,23 @@ void timer_disable(void)
 #ifdef STM32F3
     NVIC_DisableIRQ(TIM7_IRQn);
 
-#elif ESP
+#elif defined(ESP)
     os_timer_disarm(&work_timer);
 
-#elif SM701
+#elif defined(SM701)
     am_hal_ctimer_stop(2, AM_HAL_CTIMER_TIMERA);
 #endif
 }
 
 #ifdef STM32F3
-static void timer_irs(void)
+static void timer_isr(void)
 {
     TIM_ClearFlag(TIM7, TIM_IT_Update);
     timer_cnt++;
 }
 
-#elif ESP
-void timer_irs(void* arvg)
+#elif defined(ESP)
+void timer_isr(void* arvg)
 {
     timer_cnt++;
 
@@ -165,8 +165,8 @@ void timer_irs(void* arvg)
 #endif
 }
 
-#elif SM701
-static void timer_irs(void)
+#elif defined(SM701)
+static void timer_isr(void)
 {
     uint32_t status;
 
@@ -183,13 +183,13 @@ static void timer_irs(void)
 #ifdef STM32F3
 void TIM7_IRQHandler(void)
 {
-    timer_irs();
+    timer_isr();
 }
 
-#elif SM701
+#elif defined(SM701)
 void am_ctimer_isr(void)
 {
-    timer_irs();
+    timer_isr();
 }
 
 #endif
@@ -221,14 +221,14 @@ void timer_init()
     TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE);
 
     TIM_Cmd(TIM7, ENABLE);
-#elif LINUX
+#elif defined(LINUX)
     clock_gettime(CLOCK_MONOTONIC, &boot_time);
 
-#elif ESP
-    os_timer_setfn(&work_timer, timer_irs, NULL);
+#elif defined(ESP)
+    os_timer_setfn(&work_timer, timer_isr, NULL);
     os_timer_arm(&work_timer, US_PER_TICK/1000, 1);
 
-#elif SM701
+#elif defined(SM701)
     am_hal_ctimer_config_single(2, AM_HAL_CTIMER_TIMERA,
                                 AM_HAL_CTIMER_XT_2_048KHZ |
                                 AM_HAL_CTIMER_FN_REPEAT |

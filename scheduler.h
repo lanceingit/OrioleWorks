@@ -2,9 +2,15 @@
 
 #include "timer.h"
 
+#define USE_TASK_SHELL      0
+#define USE_TASK_PRINT      0
+
+#define TASK_MAX            20
+#define TASK_NAME_MAX       10
+
+
 typedef void(*task_callback_func)(void);
 
-#define TASK_NAME_MAX   10
 
 typedef struct {
     char name[TASK_NAME_MAX];
