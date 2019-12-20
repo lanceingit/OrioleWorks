@@ -42,7 +42,7 @@ void task_disable(Task* t)
     t->run = false;
 }
 
-Task* task_create(char* name, Times interval, task_callback_func cb)
+Task* task_create(char* name, Times interval, task_func cb)
 {
     if(task_cnt >= TASK_MAX) return NULL;
 
@@ -58,7 +58,16 @@ Task* task_create(char* name, Times interval, task_callback_func cb)
 
     task_cnt++;
 
-    return task_tab[task_cnt];
+    return task_tab[task_cnt-1];
+}
+
+Task* task_create_ex(char* name, Times interval, task_func cb, void* argv)
+{
+    Task* task = task_create(name, interval, cb);
+    if(task != NULL) {
+        task->argv = argv;
+    }
+    return task;
 }
 
 void scheduler_run(void)
@@ -67,7 +76,7 @@ void scheduler_run(void)
         if(task_tab[i]->run) {
 //            PRINT("task:%d ",i);
             if(timer_check(&task_tab[i]->last_run, task_tab[i]->rate)) {
-                task_tab[i]->callback();
+                task_tab[i]->callback(task_tab[i]->argv);
                 // PRINT("run \n");
             }
             else {

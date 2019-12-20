@@ -82,6 +82,15 @@
     
     #define STAT_ADDR               0xFF400
     #define STAT_BUF_SIZE           1024 
+    
+    #define KEY_GPIO                19
+    #define KEY_PRESS_LEVEL         0
+    #define KEY_ACTION_TIME_MS      50
+    #define KEY_LONG_PRESS_MS       1500
+    
+    #define RED_LED_GPIO            44
+    #define BLUE_LED_GPIO           13
+    #define LED_LIGHT_LEVEL         0
 #endif
 
 

@@ -8,7 +8,7 @@
 #define USE_TASK_SHELL      0
 #endif
 
-typedef void(*task_callback_func)(void);
+typedef void(*task_func)(void* argv);
 
 
 typedef struct {
@@ -16,12 +16,14 @@ typedef struct {
     Times rate;
     Times time_use;
     Times last_run;
-    task_callback_func callback;
+    task_func callback;
     bool run;
+    void* argv;
 } Task;
 
 void task_init(void);
-Task* task_create(char* name, Times interval, task_callback_func cb);
+Task* task_create(char* name, Times interval, task_func cb);
+Task* task_create_ex(char* name, Times interval, task_func cb, void* argv);
 void task_set_rate(Task* t, Times time);
 void task_disable(Task* t);
 
