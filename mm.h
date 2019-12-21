@@ -16,7 +16,7 @@
 void mm_init(void);
 void* mm_malloc(uint32_t s);
 void mm_free(void* m);
-#if USE_MM_PRINT
+#if USE_MM_SHELL
 void mm_print_info(void);
 #endif
 

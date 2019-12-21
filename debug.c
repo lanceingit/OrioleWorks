@@ -1,16 +1,14 @@
-/**                                               _____           ,-.
- * _______       _____       _____                ___   _,.      /  /
- * ___    |__   ____(_)_____ __  /______________  __   ; \____,-==-._  )
- * __  /| |_ | / /_  /_  __ `/  __/  __ \_  ___/  _    //_    `----' {+>
- * _  ___ |_ |/ /_  / / /_/ // /_ / /_/ /  /      _    `  `'--/  /-'`(
- * /_/  |_|____/ /_/  \__,_/ \__/ \____//_/       _          /  /
- *                                                           `='
- * 
+/**
+ *  .----. .----. .-. .----. .-.   .----.       .-.       
+ * /  {}  \| {}  }| |/  {}  \| |   | {_        /'v'\      
+ * \      /| .-. \| |\      /| `--.| {__      (/   \)     
+ *  `----' `-' `-'`-' `----' `----'`----'    ='="="===<   
+ *                                              |_|
  * debug.c
  *
- * v1.0
+ * v1.1
  *
- * debug module, support module select
+ * Debug module, support module select
  */
 #include "support.h"
 
@@ -18,12 +16,21 @@
 #include "debug_module_list.h"
 
 #include <ctype.h>
-#include <math.h>
 
 DebugLevel debug_level = DEBUG_LEVEL_INFO;
 DebugID debug_module = DEBUG_ID_NULL;
 
 /////////////////////////////////////////////////////////////////
+
+/*
+If use print function, must define powf function
+like. 
+#include <math.h>
+#define POW_FUNC             powf
+*/
+
+#define POW_FUNC             powerf
+
 
 #define DEF_PRECISION   6
 
@@ -33,6 +40,16 @@ static const char digit[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 
 static char* print_buf;
 static uint16_t print_cnt=0;
+
+#ifndef powerf
+float powerf(float base, int exp) 
+{
+    float result = base;
+    for (int count = 1; count < exp; count++) result *= base;
+
+    return result;
+}  
+#endif
 
 int putcf(int c)
 {
@@ -312,7 +329,7 @@ int evsprintf(char* buf, const char* fmt, va_list ap)
                 len += itoa_dec((int)num, width, pad);
                 putcf('.');
                 len++;
-                len += itoa_dec((num - (int)num) * powf(10.0f, precision), precision, '0');
+                len += itoa_dec((num - (int)num) * POW_FUNC(10.0f, precision), precision, '0');
                 break;
             case 's':
                 str = va_arg(ap, char*);

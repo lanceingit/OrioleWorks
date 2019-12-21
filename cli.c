@@ -1,10 +1,14 @@
 /**
- * 
+ *  .----. .----. .-. .----. .-.   .----.       .-.       
+ * /  {}  \| {}  }| |/  {}  \| |   | {_        /'v'\      
+ * \      /| .-. \| |\      /| `--.| {__      (/   \)     
+ *  `----' `-' `-'`-' `----' `----'`----'    ='="="===<   
+ *                                              |_|
  * cli.c
  *
- * v1.4
+ * v1.5
  *
- * command line interface module
+ * Command line interface module
  */
 #include "support.h"
 
@@ -77,6 +81,21 @@ void cli_output(char* buf, uint16_t len)
     SEGGER_RTT_Write(0, buf, len);
 }
 
+#elif defined(ESP)
+void cli_device_init(void)
+{
+
+}
+
+uint16_t cli_input(uint8_t* data, uint16_t size)
+{
+    return 0;
+}
+
+void cli_output(char* buf, uint16_t len)
+{
+    os_printf("%s", buf);
+}
 #elif defined(ORIOLE_WORKS)
 #include "serial.h"
 
@@ -373,11 +392,11 @@ void cli_update(void)
 void cli_print_logo(void)
 {
     cli_device_write("\n");
-    cli_device_write(" _______       _____       _____\n");
-    cli_device_write(" ___    |__   ____(_)_____ __  /______________ \n");
-    cli_device_write(" __  /| |_ | / /_  /_  __ `/  __/  __ \\_  ___/\n");
-    cli_device_write(" _  ___ |_ |/ /_  / / /_/ // /_ / /_/ /  /\n");\
-    cli_device_write(" /_/  |_|____/ /_/  \\__,_/ \\__/ \\____//_/\n\n");    
+    cli_device_write(" .----. .----. .-. .----. .-.   .----.    .-.\n");       
+    cli_device_write("/  {}  \\| {}  }| |/  {}  \\| |   | {_     /'v'\\\n");      
+    cli_device_write("\\      /| .-. \\| |\\      /| `--.| {__   (/   \\)\n");     
+    cli_device_write(" `----' `-' `-'`-' `----' `----'`----' ='=\"=\"===<\n");   
+    cli_device_write("                                          |_|\n"); 
 }
 
 void cli_init(void)

@@ -3,6 +3,7 @@
 #ifndef GLOBAL_CONFIG
 #define TIMER_RATE_HZ       (1000)
 #define TIMER_WIDTH_BIT     64
+#define USE_RTC             0
 #endif
 
 #define US_PER_TICK         (1.0f*1000*1000/TIMER_RATE_HZ)
@@ -18,6 +19,7 @@
 #endif
 
 #define TIMER_DEF(name) static Times name = 0;
+#define TIMER_NEW(name, t) static Times name =0; name = timer_new(t);
 
 void timer_init(void);
 void timer_disable(void);

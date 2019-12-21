@@ -1,14 +1,12 @@
-/**                                               _____           ,-.
- * _______       _____       _____                ___   _,.      /  /
- * ___    |__   ____(_)_____ __  /______________  __   ; \____,-==-._  )
- * __  /| |_ | / /_  /_  __ `/  __/  __ \_  ___/  _    //_    `----' {+>
- * _  ___ |_ |/ /_  / / /_/ // /_ / /_/ /  /      _    `  `'--/  /-'`(
- * /_/  |_|____/ /_/  \__,_/ \__/ \____//_/       _          /  /
- *                                                           `='
- *
+/**
+ *  .----. .----. .-. .----. .-.   .----.       .-.       
+ * /  {}  \| {}  }| |/  {}  \| |   | {_        /'v'\      
+ * \      /| .-. \| |\      /| `--.| {__      (/   \)     
+ *  `----' `-' `-'`-' `----' `----'`----'    ='="="===<   
+ *                                              |_|
  * mm.c
  *
- * v1.0
+ * v1.1
  *
  * Dynamic memory management, reducing memory fragmentation
  */
@@ -111,7 +109,7 @@ void* mm_malloc(uint32_t s)
         #endif    
         }
     }
-#elif MM_USE == MM_MODULE_DYNAMIC_SIZE
+#elif USE_MM == MM_MODULE_DYNAMIC_SIZE
 #else
 #error "must select one mm module"
 #endif
@@ -154,7 +152,7 @@ void mm_free(void* m)
             }
         }
     }
-#elif MM_USE == MM_MODULE_DYNAMIC_SIZE
+#elif USE_MM == MM_MODULE_DYNAMIC_SIZE
 #else
 #error "must select one mm module"
 #endif
