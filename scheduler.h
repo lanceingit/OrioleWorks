@@ -29,4 +29,5 @@ void task_disable(Task* t);
 
 void scheduler_run(void);
 
-
+////////////////////////////////////////
+bool sem_check(bool* cond);

@@ -3,7 +3,7 @@
 #ifndef GLOBAL_CONFIG
 #define TIMER_RATE_HZ       (1000)
 #define TIMER_WIDTH_BIT     64
-#define USE_RTC             0
+#define USE_RTC_INC         0
 #endif
 
 #define US_PER_TICK         (1.0f*1000*1000/TIMER_RATE_HZ)

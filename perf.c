@@ -304,7 +304,7 @@ void event_init(void)
     cli_regist("event", event_shell);
     #endif
 
-    printf("event init!\n");
+    PRINTF_FUNC("event init!\n");
     storage_recover(EVENT_ADDR, event_buf, &event_fifo);
     event_record(EVENT_POWER_ON, 0);
 }
@@ -478,12 +478,11 @@ void RatePerf_cnt(RatePerf* self, uint8_t cnt)
 
 void RatePerf_print(RatePerf* self, char* tag, uint8_t rate_s)
 {
-    rate_s *=2;
     if(timer_check(&self->timer, rate_s*1000*1000))
     {
         self->rate = self->cnt/(rate_s*1.0f);
         self->cnt = 0;
-        //PRINTF_FUNC("[%s]rate:%.2fsps\n", tag, self->rate);
+        PRINTF_FUNC("[%s]rate:%.2fsps\n", tag, self->rate);
     }  
 }
 
@@ -493,10 +492,10 @@ void RatePerf_print_check(RatePerf* self, char* tag, uint8_t rate_s, float thres
     {
         self->rate = self->cnt/(rate_s*1.0f);
         self->cnt = 0;
-//        PRINTF_FUNC("[%s]rate:%.2fsps\n", tag, self->rate);
-//        if(self->rate < threshold) {
-//            PRINTF_FUNC("===================WARN==%s rate low!\n", tag);
-//        }        
+        PRINTF_FUNC("[%s]rate:%.2fsps\n", tag, self->rate);
+        if(self->rate < threshold) {
+            PRINTF_FUNC("===================WARN==%s rate low!\n", tag);
+        }        
     }  
 }
 #endif

@@ -37,7 +37,7 @@ float datawin_get_peakp(DataWin* self);
 #endif
 
 //////////////////////////////////////////////////////////////////////
-#if USE_DATA_WIN
+#if USE_UNIT_FIFO
 typedef struct {
     uint16_t head;
     uint16_t tail;

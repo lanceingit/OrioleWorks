@@ -76,6 +76,8 @@ float datawin_get_peakp(DataWin* self)
 //////////////////////////////////////////////////////////////////////
 
 #if USE_UNIT_FIFO
+#include <string.h>
+
 uint16_t UnitFifo_get_next(UnitFifo* self, uint16_t index)
 {
     return (index>=((self->deepth-1)*self->unit_size)? 0: (index+self->unit_size));

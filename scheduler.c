@@ -6,7 +6,7 @@
  *                                              |_|
  * scheduler.c
  *
- * v1.2
+ * v1.3
  *
  * Simple scheduling system, task form
  */
@@ -28,6 +28,21 @@ like.
 
 Task* task_tab[TASK_MAX] = {NULL};
 uint8_t task_cnt=0;
+
+
+bool sem_check(bool* cond)
+{
+    if(*cond) {
+        *cond = false;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/////////////////////////////////////////////////////////////
 
 
 void task_set_rate(Task* t, Times time)

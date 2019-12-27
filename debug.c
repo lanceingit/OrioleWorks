@@ -6,7 +6,7 @@
  *                                              |_|
  * debug.c
  *
- * v1.1
+ * v1.2
  *
  * Debug module, support module select
  */
@@ -16,6 +16,11 @@
 #include "debug_module_list.h"
 
 #include <ctype.h>
+#if USE_PRINT_RTC
+#include <time.h>
+#include "rtc.h"
+#include "timer.h"
+#endif
 
 DebugLevel debug_level = DEBUG_LEVEL_INFO;
 DebugID debug_module = DEBUG_ID_NULL;
@@ -127,6 +132,10 @@ static uint8_t itoa_hex(unsigned long int num, uint8_t width, char pad)
 {
     uint8_t len = 0;
     bool found_first = false;
+    
+    if(num == 0) {
+        return itoa_dec(num, width, pad);
+    }
 
     for(int8_t i = (32/4-1); i >= 0; i--) {
         uint8_t shift = i * 4;
@@ -275,6 +284,10 @@ int evsprintf(char* buf, const char* fmt, va_list ap)
             }
 
             switch(*fmt++) {
+            case 'c':
+                putcf(va_arg(ap, int));
+                len++;
+                break;
             case 'd':
                 len += itoa_dec(va_arg(ap, int), width, pad);
                 break;
@@ -377,6 +390,23 @@ char* enum2string(EnumString* enum_string, uint8_t id)
 }
 
 /////////////////////////////////////////////////////////////////
+void print_time(void)
+{
+#if USE_PRINT_RTC    
+#if defined(ORIOLE_WORKS)
+    time_t now;
+    struct tm t;
+#if USE_RTC    
+    rtc_get_UTC(&now); 
+#else
+    now = timer_now();
+#endif
+    localtime_r(&now, &t);
+    PRINT("%02d-%02d-%02d.%03d    ", t.tm_hour, t.tm_min, t.tm_sec, (timer_now()/1000)%1000);
+#endif    
+#endif    
+}
+
 void debug_list_modules(void)
 {
     uint16_t count;

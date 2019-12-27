@@ -6,7 +6,7 @@
  *                                              |_|
  * timer.c
  *
- * v2.1
+ * v2.2
  *
  * Simple timer, delay and time block function
  */
@@ -18,7 +18,7 @@
     #include <time.h>
 #endif
 
-#if USE_RTC
+#if USE_RTC_INC
     #include "rtc.h"
 #endif
 
@@ -152,11 +152,11 @@ static void timer_isr(void)
 }
 
 #elif defined(ESP)
-void timer_isr(void* arvg)
+void timer_isr(void* argv)
 {
     timer_cnt++;
 
-#if USE_RTC
+#if USE_RTC_INC
     if(timer_cnt%(1000*1000/US_PER_TICK) == 0) {
         rtc_second_inc();
     }
