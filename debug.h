@@ -154,14 +154,14 @@ int evsprintf(char* buf, const char* fmt, va_list ap);
 
 ///////////////////////////////////////////////////////
 typedef struct {               
-    uint16_t id;
+    int16_t id;
     char* name;
 } EnumString;                            
  
 #define ENUM_STRING_START(type) static EnumString ENUM_##type[]={ 
 #define ENUM_STRING_ADD(id) {id, #id},  
-#define ENUM_STRING_END  {0xFFFF,"end"} };
+#define ENUM_STRING_END  {0x7FFF,"StrNone"} };
 
 #define ENUM_TO_STRING(type, id) enum2string(ENUM_##type, id)  
-char* enum2string(EnumString* enum_string, uint8_t id);
+char* enum2string(EnumString* enum_string, int16_t id);
 

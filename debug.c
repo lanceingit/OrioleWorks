@@ -6,7 +6,7 @@
  *                                              |_|
  * debug.c
  *
- * v1.3
+ * v1.4
  *
  * Debug module, support module select
  */
@@ -380,16 +380,16 @@ int esprintf(char* buf, const char* fmt, ...)
 }
 
 /////////////////////////////////////////////////////////////////
-char* enum2string(EnumString* enum_string, uint8_t id)
+char* enum2string(EnumString* enum_string, int16_t id)
 {
-   uint16_t i=0;
-   while(enum_string[i].id!=0xFFFF) {
+   uint8_t i=0;
+   while(enum_string[i].id!=0x7FFF) {
       if(enum_string[i].id==id)
           return enum_string[i].name;
       i++;
    }
    
-   return 0;
+   return NULL;
 }
 
 /////////////////////////////////////////////////////////////////
