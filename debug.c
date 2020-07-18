@@ -346,6 +346,9 @@ int evsprintf(char* buf, const char* fmt, va_list ap)
                 break;
             case 's':
                 str = va_arg(ap, char*);
+                if(str == NULL) {
+                    str = "(NULL)";
+                }                
                 while(*str) {
                     putcf(*str++);
                     len++;
